@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
 import parseCSV from "@utils/parseCSV";
-import { Flex, Divider, Paper, Table, Text, Modal, Code } from "@mantine/core";
+import {
+  Flex,
+  Divider,
+  Paper,
+  Table,
+  Text,
+  Modal,
+  Code,
+  Button,
+} from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
 import EntitiesMapType from "@customTypes/EntitiesMapType";
 import { DEFAULT_ENTITY, Entity } from "@customTypes/EntitiesType";
 import { useDisclosure } from "@mantine/hooks";
 import formatCSV from "@utils/formatCSV";
+import downloadCSV from "@utils/downloadCSV";
 
 type Props = {
   file: FileWithPath | undefined;
@@ -13,7 +23,7 @@ type Props = {
 };
 
 const SubmissionResult = (props: Props) => {
-  const { file, entityMap } = props;
+  const { file } = props;
   const [csvData, setCsvData] = useState<string[][]>([]);
 
   useEffect(() => {
@@ -44,21 +54,22 @@ const SubmissionResult = (props: Props) => {
           {fileName}
         </Text>
         <Divider />
-        <RenderInfo csvData={csvData} entityMap={entityMap} />
+        <RenderInfo {...props} csvData={csvData} />
         <Divider />
-        <RenderTable csvData={csvData} entityMap={entityMap} />
+        <RenderTable {...props} csvData={csvData} />
       </Flex>
     </Paper>
   );
 };
 
-type RenderProps = {
+type RenderProps = Props & {
   csvData: string[][];
-  entityMap: EntitiesMapType;
 };
 
-const RenderInfo = ({ csvData, entityMap }: RenderProps) => {
+const RenderInfo = ({ csvData, entityMap, file }: RenderProps) => {
+  const headers = csvData[0] || [];
   const rows = csvData.slice(1) || [];
+
   const totalRows = rows.length;
   const matches = rows.reduce((acc, [companyName = ""]) => {
     const isMatched = entityMap.get(companyName);
@@ -70,12 +81,26 @@ const RenderInfo = ({ csvData, entityMap }: RenderProps) => {
     return acc + (num > 1 ? num - 1 : 0);
   }, 0);
 
+  const handleDownload = () => {
+    const { path = "" } = file;
+    const fileName = path.split("/").pop();
+
+    const matchedRows = rows.filter(([companyName = ""]) =>
+      entityMap.get(companyName),
+    );
+    const csvWithHeaders = [headers, ...matchedRows];
+    downloadCSV(csvWithHeaders, `matched-${fileName}`);
+  };
+
   return (
     <Flex direction="column">
       <Text>Total Rows: {totalRows}</Text>
       <Text>Matches: {matches}</Text>
       <Text>Rejects: {rejects}</Text>
       <Text>Duplicates: {duplicates}</Text>
+      <Button onClick={handleDownload} mt="sm" maw={200} disabled={!matches}>
+        Download Matched CSV
+      </Button>
     </Flex>
   );
 };
