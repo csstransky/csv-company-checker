@@ -17,6 +17,12 @@ import { DEFAULT_ENTITY, Entity } from "@customTypes/EntitiesType";
 import { useDisclosure } from "@mantine/hooks";
 import formatCSV from "@utils/formatCSV";
 import downloadCSV from "@utils/downloadCSV";
+import {
+  ALL_STATUSES,
+  APPROVED_STATUS,
+  PENDING_REVIEW,
+  REJECTED_STATUS,
+} from "@customTypes/StatusType";
 
 type Props = {
   file: FileWithPath | undefined;
@@ -86,11 +92,11 @@ const RenderInfo = ({ csvData, entityMap, file }: RenderProps) => {
 
   useEffect(() => {
     if (rejects === 0) {
-      setStatus("Approved");
+      setStatus(APPROVED_STATUS);
     } else if (matches === 0) {
-      setStatus("Rejected");
+      setStatus(REJECTED_STATUS);
     } else {
-      setStatus("Pending Review");
+      setStatus(PENDING_REVIEW);
     }
   }, [matches, rejects]);
 
@@ -118,7 +124,7 @@ const RenderInfo = ({ csvData, entityMap, file }: RenderProps) => {
         label="Status"
         value={status}
         onChange={handleStatusChange}
-        data={["Pending Review", "Under Review", "Approved", "Rejected"]}
+        data={ALL_STATUSES}
       />
       <Flex direction="column">
         <Text>Total Rows: {totalRows}</Text>
