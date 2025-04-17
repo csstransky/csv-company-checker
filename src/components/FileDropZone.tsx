@@ -18,7 +18,7 @@ const FileDropZone = () => {
         onDrop={(uploadFiles) => setFiles(uploadFiles)}
         onReject={(rejections) => setFileRejections(rejections)}
         maxSize={MAX_UPLOAD_SIZE}
-        accept="text/csv"
+        accept={["text/csv"]}
       >
         <Group
           justify="center"
@@ -74,7 +74,7 @@ const RenderRejections = ({
       <>
         {fileRejections.map((rejection, index) => (
           <Box key={`rejected-file-${index}`}>
-            <Text fontWeight="bold">{rejection.file.name}</Text>
+            <Text fw={700}>{rejection.file.name}</Text>
             <>
               {rejection.errors.map((error, i) => (
                 <Text key={`error-${i}`} c="red.500">

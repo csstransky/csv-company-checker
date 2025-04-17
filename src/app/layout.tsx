@@ -28,11 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <MantineProvider
-          defaultColorScheme="dark"
-          withGlobalStyles
-          withNormalizeCSS
-        >
+        <MantineProvider defaultColorScheme="dark">
           <FilesProvider>{children}</FilesProvider>
         </MantineProvider>
       </body>
