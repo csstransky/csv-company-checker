@@ -10,7 +10,7 @@ it even makes a GET call publicly to load it.
 
 This app is currently deployed here: https://csv-company-checker.vercel.app/
 
-![previewScreenshot.png](public/previewScreenshot.png)
+![previewScreenshot.png](previewScreenshot.png)
 
 ## Getting Started
 
