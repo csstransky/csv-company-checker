@@ -33,7 +33,6 @@ const Home = async () => {
     <Flex p="4rem" gap="2rem" direction="column">
       <FileDropZone />
       <CSVResults entityMap={entityMap} />
-      {JSON.stringify(entityMap.get("Cohesity"))}
     </Flex>
   );
 };
