@@ -31,7 +31,11 @@ const Home = async () => {
   const entityMap = createEntityMap(entities);
 
   return (
-    <Flex p="4rem" gap="2rem" direction="column">
+    <Flex
+      p={{ base: "1rem", md: "4rem" }}
+      gap={{ base: "1rem", md: "2rem" }}
+      direction="column"
+    >
       <FetchTestFilesButton />
       <FileDropZone />
       <CSVResults entityMap={entityMap} />
