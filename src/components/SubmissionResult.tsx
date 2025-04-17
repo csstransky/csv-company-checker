@@ -29,6 +29,11 @@ type Props = {
   entityMap: EntitiesMapType;
 };
 
+const mobileStyleProps = {
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+};
+
 const SubmissionResult = (props: Props) => {
   const { file } = props;
   const [csvData, setCsvData] = useState<string[][]>([]);
@@ -57,7 +62,11 @@ const SubmissionResult = (props: Props) => {
   return (
     <Paper shadow="sm" p="md" radius="md" withBorder>
       <Flex direction="column" gap="1rem">
-        <Text fw={700} fz={"2rem"}>
+        <Text
+          fw={700}
+          fz={{ base: "1.1rem", xs: "1.5rem", md: "2rem" }}
+          style={mobileStyleProps}
+        >
           {fileName}
         </Text>
         <Divider />
@@ -132,10 +141,10 @@ const RenderInfo = ({ csvData, entityMap, file }: RenderProps) => {
         data={ALL_STATUSES}
       />
       <Flex direction="column">
-        <Text>Total Rows: {totalRows}</Text>
-        <Text>Matches: {matches}</Text>
-        <Text>Rejects: {rejects}</Text>
-        <Text>Duplicates: {duplicates}</Text>
+        <Text style={mobileStyleProps}>Total Rows: {totalRows}</Text>
+        <Text style={mobileStyleProps}>Matches: {matches}</Text>
+        <Text style={mobileStyleProps}>Rejects: {rejects}</Text>
+        <Text style={mobileStyleProps}>Duplicates: {duplicates}</Text>
       </Flex>
       <Button onClick={handleDownload} maw={maxButtonWidth} disabled={!matches}>
         Download Matched CSV
