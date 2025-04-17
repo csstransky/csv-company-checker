@@ -9,6 +9,7 @@ import {
   Modal,
   Code,
   Button,
+  Select,
 } from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
 import EntitiesMapType from "@customTypes/EntitiesMapType";
@@ -81,6 +82,22 @@ const RenderInfo = ({ csvData, entityMap, file }: RenderProps) => {
     return acc + (num > 1 ? num - 1 : 0);
   }, 0);
 
+  const [status, setStatus] = useState<string>("");
+
+  useEffect(() => {
+    if (rejects === 0) {
+      setStatus("Approved");
+    } else if (matches === 0) {
+      setStatus("Rejected");
+    } else {
+      setStatus("Pending Review");
+    }
+  }, [matches, rejects]);
+
+  const handleStatusChange = (value: string) => {
+    setStatus(value);
+  };
+
   const handleDownload = () => {
     const { path = "" } = file;
     const fileName = path.split("/").pop();
@@ -92,13 +109,24 @@ const RenderInfo = ({ csvData, entityMap, file }: RenderProps) => {
     downloadCSV(csvWithHeaders, `matched-${fileName}`);
   };
 
+  const maxButtonWidth = 200;
   return (
-    <Flex direction="column">
-      <Text>Total Rows: {totalRows}</Text>
-      <Text>Matches: {matches}</Text>
-      <Text>Rejects: {rejects}</Text>
-      <Text>Duplicates: {duplicates}</Text>
-      <Button onClick={handleDownload} mt="sm" maw={200} disabled={!matches}>
+    <Flex direction="column" gap="1rem">
+      <Select
+        disabled={!matches || !rejects}
+        maw={maxButtonWidth}
+        label="Status"
+        value={status}
+        onChange={handleStatusChange}
+        data={["Pending Review", "Under Review", "Approved", "Rejected"]}
+      />
+      <Flex direction="column">
+        <Text>Total Rows: {totalRows}</Text>
+        <Text>Matches: {matches}</Text>
+        <Text>Rejects: {rejects}</Text>
+        <Text>Duplicates: {duplicates}</Text>
+      </Flex>
+      <Button onClick={handleDownload} maw={maxButtonWidth} disabled={!matches}>
         Download Matched CSV
       </Button>
     </Flex>
