@@ -5,7 +5,7 @@ import FileDropZone from "@components/FileDropZone";
 import CSVResults from "@components/CSVResults";
 import { Flex } from "@mantine/core";
 import EntitiesMapType from "@customTypes/EntitiesMapType";
-import FetchTestFilesButton from "@components/FetchTestFiles";
+import FetchTestFilesButton from "@components/FetchTestFilesButton";
 
 const createEntityMap = (entities: EntitiesType): EntitiesMapType =>
   Object.values(entities).reduce((accMap, entity) => {
