@@ -7,28 +7,10 @@ const __dirname = dirname(__filename);
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
-  resolvePluginsRelativeTo: __dirname,
 });
 
-export default [
-  {
-    files: ["**/*.ts", "**/*.tsx"],
-    languageOptions: {
-      parser: "@typescript-eslint/parser",
-      parserOptions: {
-        project: "./tsconfig.json",
-        tsconfigRootDir: __dirname,
-      },
-    },
-  },
-
-  ...compat.extends(
-    "airbnb",
-    "airbnb/hooks",
-    "airbnb-typescript",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "next/core-web-vitals",
-    "next/typescript"
-  ),
+const eslintConfig = [
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
+
+export default eslintConfig;
