@@ -54,6 +54,12 @@ export type Entity = {
   location?: string;
 };
 
+export const DEFAULT_ENTITY = {
+  name: "",
+  type: "",
+  meta_type: "",
+} as Entity;
+
 type EntitiesType = {
   [id: string]: Entity;
 };
