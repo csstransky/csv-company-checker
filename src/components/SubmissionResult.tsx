@@ -17,7 +17,7 @@ import { DEFAULT_ENTITY, Entity } from "@customTypes/EntitiesType";
 import { useDisclosure } from "@mantine/hooks";
 import formatCSV from "@utils/formatCSV";
 import downloadCSV from "@utils/downloadCSV";
-import {
+import StatusType, {
   ALL_STATUSES,
   APPROVED_STATUS,
   PENDING_REVIEW,
@@ -88,7 +88,7 @@ const RenderInfo = ({ csvData, entityMap, file }: RenderProps) => {
     return acc + (num > 1 ? num - 1 : 0);
   }, 0);
 
-  const [status, setStatus] = useState<string>("");
+  const [status, setStatus] = useState<StatusType>(PENDING_REVIEW);
 
   useEffect(() => {
     if (rejects === 0) {
@@ -100,11 +100,16 @@ const RenderInfo = ({ csvData, entityMap, file }: RenderProps) => {
     }
   }, [matches, rejects]);
 
-  const handleStatusChange = (value: string) => {
-    setStatus(value);
+  const handleStatusChange = (value: string | null) => {
+    if (value) {
+      // Since we're feeding in ALL_STATUSES, this will for sure be a StatusType
+      setStatus(value as StatusType);
+    }
   };
 
   const handleDownload = () => {
+    if (!file) return;
+
     const { path = "" } = file;
     const fileName = path.split("/").pop();
 
