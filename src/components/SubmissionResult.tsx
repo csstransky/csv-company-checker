@@ -1,10 +1,28 @@
 import { useEffect, useState } from "react";
 import parseCSV from "@utils/parseCSV";
-import { Flex, Divider, Paper, Table, Text, Modal, Code } from "@mantine/core";
+import {
+  Flex,
+  Divider,
+  Paper,
+  Table,
+  Text,
+  Modal,
+  Code,
+  Button,
+  Select,
+} from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
 import EntitiesMapType from "@customTypes/EntitiesMapType";
 import { DEFAULT_ENTITY, Entity } from "@customTypes/EntitiesType";
 import { useDisclosure } from "@mantine/hooks";
+import formatCSV from "@utils/formatCSV";
+import downloadCSV from "@utils/downloadCSV";
+import StatusType, {
+  ALL_STATUSES,
+  APPROVED_STATUS,
+  PENDING_REVIEW,
+  REJECTED_STATUS,
+} from "@customTypes/StatusType";
 
 type Props = {
   file: FileWithPath | undefined;
@@ -12,7 +30,7 @@ type Props = {
 };
 
 const SubmissionResult = (props: Props) => {
-  const { file, entityMap } = props;
+  const { file } = props;
   const [csvData, setCsvData] = useState<string[][]>([]);
 
   useEffect(() => {
@@ -22,7 +40,8 @@ const SubmissionResult = (props: Props) => {
     reader.onload = () => {
       const text = reader.result as string;
       const parsed = parseCSV(text);
-      setCsvData(parsed);
+      const formatted = formatCSV(parsed);
+      setCsvData(formatted);
     };
 
     reader.readAsText(file);
@@ -42,47 +61,85 @@ const SubmissionResult = (props: Props) => {
           {fileName}
         </Text>
         <Divider />
-        <RenderInfo csvData={csvData} entityMap={entityMap} />
+        <RenderInfo {...props} csvData={csvData} />
         <Divider />
-        <RenderTable csvData={csvData} entityMap={entityMap} />
+        <RenderTable {...props} csvData={csvData} />
       </Flex>
     </Paper>
   );
 };
 
-type RenderProps = {
+type RenderProps = Props & {
   csvData: string[][];
-  entityMap: EntitiesMapType;
 };
 
-const RenderInfo = ({ csvData, entityMap }: RenderProps) => {
+const RenderInfo = ({ csvData, entityMap, file }: RenderProps) => {
+  const headers = csvData[0] || [];
   const rows = csvData.slice(1) || [];
+
   const totalRows = rows.length;
   const matches = rows.reduce((acc, [companyName = ""]) => {
     const isMatched = entityMap.get(companyName);
     return acc + (isMatched ? 1 : 0);
   }, 0);
   const rejects = totalRows - matches;
+  const duplicates = rows.reduce((acc, [, , count]) => {
+    const num = Number(count);
+    return acc + (num > 1 ? num - 1 : 0);
+  }, 0);
 
-  const companyNameCountMap = rows.reduce(
-    (acc: Record<string, number>, [companyName = ""]) => {
-      acc[companyName] = (acc[companyName] ?? 0) + 1;
-      return acc;
-    },
-    {},
-  );
-  const duplicates = Object.entries(companyNameCountMap)
-    .filter(([, count]) => count > 1)
-    .reduce((acc, [, count]) => {
-      return acc + count - 1;
-    }, 0);
+  const [status, setStatus] = useState<StatusType>(PENDING_REVIEW);
 
+  useEffect(() => {
+    if (rejects === 0) {
+      setStatus(APPROVED_STATUS);
+    } else if (matches === 0) {
+      setStatus(REJECTED_STATUS);
+    } else {
+      setStatus(PENDING_REVIEW);
+    }
+  }, [matches, rejects]);
+
+  const handleStatusChange = (value: string | null) => {
+    if (value) {
+      // Since we're feeding in ALL_STATUSES, this will for sure be a StatusType
+      setStatus(value as StatusType);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!file) return;
+
+    const { path = "" } = file;
+    const fileName = path.split("/").pop();
+
+    const matchedRows = rows.filter(([companyName = ""]) =>
+      entityMap.get(companyName),
+    );
+    const csvWithHeaders = [headers, ...matchedRows];
+    downloadCSV(csvWithHeaders, `matched-${fileName}`);
+  };
+
+  const maxButtonWidth = 200;
   return (
-    <Flex direction="column">
-      <Text>Total Rows: {totalRows}</Text>
-      <Text>Matches: {matches}</Text>
-      <Text>Rejects: {rejects}</Text>
-      <Text>Duplicates: {duplicates}</Text>
+    <Flex direction="column" gap="1rem">
+      <Select
+        disabled={!matches || !rejects}
+        maw={maxButtonWidth}
+        label="Status"
+        value={status}
+        onChange={handleStatusChange}
+        data={ALL_STATUSES}
+      />
+      <Flex direction="column">
+        <Text>Total Rows: {totalRows}</Text>
+        <Text>Matches: {matches}</Text>
+        <Text>Rejects: {rejects}</Text>
+        <Text>Duplicates: {duplicates}</Text>
+      </Flex>
+      <Button onClick={handleDownload} maw={maxButtonWidth} disabled={!matches}>
+        Download Matched CSV
+      </Button>
     </Flex>
   );
 };
