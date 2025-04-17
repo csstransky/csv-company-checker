@@ -5,6 +5,7 @@ import { FileWithPath } from "@mantine/dropzone";
 import EntitiesMapType from "@customTypes/EntitiesMapType";
 import { DEFAULT_ENTITY, Entity } from "@customTypes/EntitiesType";
 import { useDisclosure } from "@mantine/hooks";
+import formatCSV from "@utils/formatCSV";
 
 type Props = {
   file: FileWithPath | undefined;
@@ -22,7 +23,8 @@ const SubmissionResult = (props: Props) => {
     reader.onload = () => {
       const text = reader.result as string;
       const parsed = parseCSV(text);
-      setCsvData(parsed);
+      const formatted = formatCSV(parsed);
+      setCsvData(formatted);
     };
 
     reader.readAsText(file);
@@ -63,19 +65,10 @@ const RenderInfo = ({ csvData, entityMap }: RenderProps) => {
     return acc + (isMatched ? 1 : 0);
   }, 0);
   const rejects = totalRows - matches;
-
-  const companyNameCountMap = rows.reduce(
-    (acc: Record<string, number>, [companyName = ""]) => {
-      acc[companyName] = (acc[companyName] ?? 0) + 1;
-      return acc;
-    },
-    {},
-  );
-  const duplicates = Object.entries(companyNameCountMap)
-    .filter(([, count]) => count > 1)
-    .reduce((acc, [, count]) => {
-      return acc + count - 1;
-    }, 0);
+  const duplicates = rows.reduce((acc, [, , count]) => {
+    const num = Number(count);
+    return acc + (num > 1 ? num - 1 : 0);
+  }, 0);
 
   return (
     <Flex direction="column">
