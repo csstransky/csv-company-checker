@@ -1,9 +1,9 @@
 ## Summary
 
-A tracking tool to compare uploaded CSV files to an "entities.json" 
+A tracking tool to compare uploaded CSV files to an "entities.json"
 file acting like the data coming from a backend database.
 
-The "entities.json" is mainly used as the payload to a pseudo-API call, 
+The "entities.json" is mainly used as the payload to a pseudo-API call,
 it even makes a GET call publicly to load it.
 
 ## Deployment
